@@ -95,6 +95,7 @@ fi
 # Configure the LAN interface with a static IP
 echo "Configuring $LAN_IFACE as LAN with static IP..."
 echo "interface/subnet br0/VLAN 1"
+sudo ifconfig SLAN_IFACE up
 sudo ifconfig $LAN_IFACE 172.16.48.1 netmask 255.255.240.0 up
 sudo ifconfig $LAN_IFACE:1 10.57.169.1 netmask 255.255.255.0 up
 

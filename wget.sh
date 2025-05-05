@@ -1,5 +1,15 @@
 #!/bin/sh
 
+
+
+#To be added --> Check if services.xml exists and use it at boot
+#To be added --> PAN vlans templates for manual setup
+#To be added --> USB/emmc management to mount and search for backup
+#To be added --> If backup isn't available save to USB/emmc for reboot persistence
+#To be added --> a way to push agent ssh keys so they can access equipment behind the bypassed gw
+#To be added --> some sort of monitoring GUI (accessible via ssh tunnel) so agents can get equipment status
+
+
 echo "============================================================"
 echo " TinyCore Gateway bypass Provisioning Script"
 echo "============================================================"
@@ -18,12 +28,18 @@ echo "intervention is always available if needed."
 echo ""
 echo "============================================================"
 
+#ensure proper software is available and usable 
+echo " For now please make sure to run the following before running "
+echo "tce-load -wi bash openssh dnsmasq ipset net-tools iperf3 tcpdump wget"
+echo "to ensure you have all required software"
+
+
 
 # Bring all interfaces down initially to prevent dhcp from admin port
 # before the WAN is properly setup
 echo "Bringing interfaces down to define interface roles, only WAN and LAN roles are supported other interfaces like ADMIN and OPT will be disabled !!!"
 for iface in $(ls /sys/class/net); do
-    ifconfig $iface down
+    sudo ifconfig $iface down
 done
 echo
 echo
@@ -55,8 +71,8 @@ ifconfig $LAN_IFACE up
 if [ "$WAN_DHCP" = "y" ]; then
     # Configure the WAN interface with DHCP
     echo "Configuring $WAN_IFACE as WAN with DHCP..."
-    ifconfig $WAN_IFACE up
-    dhclient $WAN_IFACE
+    sudo ifconfig $WAN_IFACE up
+    sudo dhclient $WAN_IFACE
 else
     # Gather static IP, subnet mask, and gateway for WAN interface
     echo "Please enter the static IP address for $WAN_IFACE (e.g., 172.16.10.2):"
@@ -70,43 +86,43 @@ else
 
     # Configure the WAN interface with static IP
     echo "Configuring $WAN_IFACE with static IP $WAN_IP..."
-    ifconfig $WAN_IFACE $WAN_IP netmask $WAN_SUBNET up
+    sudo ifconfig $WAN_IFACE $WAN_IP netmask $WAN_SUBNET up
 
     # Set the default gateway
-    route add default gw $WAN_GW $WAN_IFACE
+    sudo route add default gw $WAN_GW $WAN_IFACE
 fi
 
 # Configure the LAN interface with a static IP
 echo "Configuring $LAN_IFACE as LAN with static IP..."
 echo "interface/subnet br0/VLAN 1"
-ifconfig $LAN_IFACE 172.16.48.1 netmask 255.255.240.0 up
-ifconfig $LAN_IFACE:1 10.57.169.1 netmask 255.255.255.0 up
+sudo ifconfig $LAN_IFACE 172.16.48.1 netmask 255.255.240.0 up
+sudo ifconfig $LAN_IFACE:1 10.57.169.1 netmask 255.255.255.0 up
 
 
 ######################################################################
 #Creating Client VLANS
 echo "Configuring base Client VLANS"
 
-vconfig add $LAN_IFACE 100
-ifconfig $LAN_IFACE.100 10.81.35.129 netmask 255.255.255.128 up
-vconfig add $LAN_IFACE 101
-ifconfig $LAN_IFACE.101 192.168.161.1 netmask 255.255.255.0 up
-vconfig add $LAN_IFACE 805
-ifconfig $LAN_IFACE.805 192.168.6.1 netmask 255.255.255.0 up
-vconfig add $LAN_IFACE 850
-ifconfig $LAN_IFACE.850 172.18.0.1 netmask 255.255.0.0 up
-vconfig add $LAN_IFACE 1000
-ifconfig $LAN_IFACE.1000 172.20.0.1 netmask 255.255.240.0 up
-vconfig add $LAN_IFACE 1016
-ifconfig $LAN_IFACE.1016 172.20.16.1 netmask 255.255.255.0 up
-vconfig add $LAN_IFACE 1017
-ifconfig $LAN_IFACE.1017 172.20.17.1 netmask 255.255.255.0 up
-vconfig add $LAN_IFACE 1018
-ifconfig $LAN_IFACE.1018 172.20.18.1 netmask 255.255.255.0 up
-vconfig add $LAN_IFACE 1025
-ifconfig $LAN_IFACE.1025 172.25.0.1 netmask 255.255.0.0 up
-vconfig add $LAN_IFACE 1050
-ifconfig $LAN_IFACE.1050 172.20.50.1 netmask 255.255.255.0 up
+sudo vconfig add $LAN_IFACE 100
+sudo ifconfig $LAN_IFACE.100 10.81.35.129 netmask 255.255.255.128 up
+sudo vconfig add $LAN_IFACE 101
+sudo ifconfig $LAN_IFACE.101 192.168.161.1 netmask 255.255.255.0 up
+sudo vconfig add $LAN_IFACE 805
+sudo ifconfig $LAN_IFACE.805 192.168.6.1 netmask 255.255.255.0 up
+sudo vconfig add $LAN_IFACE 850
+sudo ifconfig $LAN_IFACE.850 172.18.0.1 netmask 255.255.0.0 up
+sudo vconfig add $LAN_IFACE 1000
+sudo ifconfig $LAN_IFACE.1000 172.20.0.1 netmask 255.255.240.0 up
+sudo vconfig add $LAN_IFACE 1016
+sudo ifconfig $LAN_IFACE.1016 172.20.16.1 netmask 255.255.255.0 up
+sudo vconfig add $LAN_IFACE 1017
+sudo ifconfig $LAN_IFACE.1017 172.20.17.1 netmask 255.255.255.0 up
+sudo vconfig add $LAN_IFACE 1018
+sudo ifconfig $LAN_IFACE.1018 172.20.18.1 netmask 255.255.255.0 up
+sudo vconfig add $LAN_IFACE 1025
+sudo ifconfig $LAN_IFACE.1025 172.25.0.1 netmask 255.255.0.0 up
+sudo vconfig add $LAN_IFACE 1050
+sudo ifconfig $LAN_IFACE.1050 172.20.50.1 netmask 255.255.255.0 up
 
 echo "Base Client VLANS created"
 ######################################################################
@@ -151,8 +167,8 @@ VLAN_IPS="\
 
 echo "$VLAN_IPS" | while read VLAN IPADDR NETMASK; do
   IFACE="$LAN_IFACE.$VLAN"
-  vconfig add "$LAN_IFACE" "$VLAN"
-  ifconfig "$IFACE" "$IPADDR" $NETMASK up
+  sudo vconfig add "$LAN_IFACE" "$VLAN"
+  sudo ifconfig "$IFACE" "$IPADDR" $NETMASK up
 done
 
 else
@@ -171,14 +187,15 @@ modprobe ip_set
 echo 1 > /proc/sys/net/ipv4/ip_forward
 
 # Set up NAT (MASQUERADE) to allow internet access for LAN
-iptables -t nat -A POSTROUTING -o $WAN_IFACE -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -o $WAN_IFACE -j MASQUERADE
 
 # Optionally, set up firewall rules to allow traffic
-iptables -A FORWARD -i $WAN_IFACE -o $LAN_IFACE -m state --state RELATED,ESTABLISHED -j ACCEPT
-iptables -A FORWARD -i $LAN_IFACE -o $WAN_IFACE -j ACCEPT
+sudo iptables -A FORWARD -i $WAN_IFACE -o $LAN_IFACE -m state --state RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -A FORWARD -i $LAN_IFACE -o $WAN_IFACE -j ACCEPT
 
 # Optional: Set up DNS for WAN
 echo "Configuring DNS for WAN..."
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 echo "Network setup [in]complete [because this is a test run]."
+

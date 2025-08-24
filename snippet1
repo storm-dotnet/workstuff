@@ -1,16 +1,16 @@
-vconfig add eth2 100
-vconfig add eth2 101
-vconfig add eth2 805
-vconfig add eth2 1000
-vconfig add eth2 1016
-vconfig add eth2 1025
-vconfig add eth2 1050
+sudo vconfig add eth2 100
+sudo vconfig add eth2 101
+sudo vconfig add eth2 805
+sudo vconfig add eth2 1000
+sudo vconfig add eth2 1016
+sudo vconfig add eth2 1025
+sudo vconfig add eth2 1050
 
 
-ifconfig eth2.100 10.81.35.129 netmask 255.255.255.128 up
-ifconfig eth2.101 192.168.161.1 netmask 255.255.255.0 up
-ifconfig eth2.805 192.168.6.1 netmask 255.255.255.0 up
-ifconfig eth2.1000 172.20.0.1 netmask 255.255.240.0 up
-ifconfig eth2.1016 172.20.16.1 netmask 255.255.255.0 up
-ifconfig eth2.1025 172.25.0.1 netmask 255.255.0.0 up
-ifconfig eth2.1050 172.20.50.1 netmask 255.255.255.0 up
+sudo ifconfig eth2.100 10.81.35.129 netmask 255.255.255.128 up
+sudo ifconfig eth2.101 192.168.161.1 netmask 255.255.255.0 up
+sudo ifconfig eth2.805 192.168.6.1 netmask 255.255.255.0 up
+sudo ifconfig eth2.1000 172.20.0.1 netmask 255.255.240.0 up
+sudo ifconfig eth2.1016 172.20.16.1 netmask 255.255.255.0 up
+sudo ifconfig eth2.1025 172.25.0.1 netmask 255.255.0.0 up
+sudo ifconfig eth2.1050 172.20.50.1 netmask 255.255.255.0 up
